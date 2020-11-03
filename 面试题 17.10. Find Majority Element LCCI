@@ -1,0 +1,69 @@
+/*
+A majority element is an element that makes up more than half of the items in an array. Given a positive integers array, 
+find the majority element. If there is no majority element, return -1. Do this in O(N) time and O(1) space.
+Example 1:
+Input: [1,2,5,9,5,9,5,5,5]
+Output: 5
+ 
+Example 2:
+Input: [3,2]
+Output: -1
+ 
+Example 3:
+Input: [2,2,1,1,1,2,2]
+Output: 2
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/find-majority-element-lcci
+*/
+
+
+//hashMap 
+//执行用时：18 ms
+//内存消耗：44 MB
+
+class Solution {
+    public int majorityElement(int[] nums) {
+
+        HashMap<Integer,Integer> hash = new HashMap<Integer,Integer>();
+        for(int i = 0;i < nums.length;i++){
+            hash.put(nums[i],hash.getOrDefault(nums[i],0)+1);
+            if(hash.get(nums[i])>(nums.length/2)){
+                return nums[i];
+            }
+        }
+            return  -1;
+        
+
+    }
+}
+
+//摩尔投票法
+//核心就是对拼消耗：玩一个诸侯争霸的游戏，假设你方人口超过总人口一半以上，并且能保证每个人口出去干仗都能一对一同归于尽。最后还有人活下来的国家就是胜利。
+//执行用时：2 ms
+//内存消耗：41.5 MB
+class Solution {
+    public int majorityElement(int[] nums) {      
+        //摩尔投票法
+        int result = 0, counts = 0, n = nums.length;
+        for(int i = 0;i < n;i++){
+            if(counts == 0){
+                result = nums[i];
+                counts = 1;
+            }else
+                counts += (nums[i] == result) ? 1 : -1;
+        }
+        int s = 0,a =  0;
+        for(;s < n;s++){
+            if(nums[s] == result){
+                a++;
+            }
+            if(a > n/2){
+                return result;
+            }
+        }
+        return -1;
+
+
+    }
+}
