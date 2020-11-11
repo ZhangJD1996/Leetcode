@@ -1,0 +1,112 @@
+/*
+Given an array of positive integers arr, calculate the sum of all possible odd-length subarrays.
+
+A subarray is a contiguous subsequence of the array.
+
+Return the sum of all odd-length subarrays of arr.
+
+给你一个正整数数组 arr ，请你计算所有可能的奇数长度子数组的和。
+
+子数组 定义为原数组中的一个连续子序列。
+
+请你返回 arr 中 所有奇数长度子数组的和 。
+
+ 
+
+示例 1：
+
+输入：arr = [1,4,2,5,3]
+输出：58
+解释：所有奇数长度子数组和它们的和为：
+[1] = 1
+[4] = 4
+[2] = 2
+[5] = 5
+[3] = 3
+[1,4,2] = 7
+[4,2,5] = 11
+[2,5,3] = 10
+[1,4,2,5,3] = 15
+我们将所有值求和得到 1 + 4 + 2 + 5 + 3 + 7 + 11 + 10 + 15 = 58
+示例 2：
+
+输入：arr = [1,2]
+输出：3
+解释：总共只有 2 个长度为奇数的子数组，[1] 和 [2]。它们的和为 3 。
+示例 3：
+
+输入：arr = [10,11,12]
+输出：66
+ 
+
+提示：
+
+1 <= arr.length <= 100
+1 <= arr[i] <= 1000
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/sum-of-all-odd-length-subarrays
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+*/
+//解法1：暴力求解  1.先找到可能的奇数子数组类型i: 1、3、5、7.....；2.起始下标j和终止下标j+i;3.将每个奇数子数组中的值相加
+class Solution {
+    public int sumOddLengthSubarrays(int[] arr) {
+        //sum为总和
+        int sum=0;
+        //（类型）i为奇数的个数1 3 5 7 .................
+        for(int i=1;i<=arr.length;i+=2){
+            //j:每种类型的起始下标。类型1的起始下标有：0,1,2,3,4类型3的有0,1,2类型5的有：0
+            for(int j=0;j+i<=arr.length;j++){
+                //根据下标找到每种类型对应的值并相加
+                for(int k=j;k<j+i;k++){
+                    sum += arr[k];
+                }
+            }
+        }
+        return sum;
+    }
+}
+
+
+/*
+解法二
+就是遍历一遍所有的元素，然后查看这个元素会在多少个长度为奇数的数组中出现过。
+
+比如题目给出的第一个测试用例 [1, 4, 2, 5, 3] 中；
+1 在 3 个长度为奇数的数组中出现过：[1], [1, 4, 2], [1, 4, 2, 5, 3]；所以最终的和，要加上 1 * 3；
+4 在 4 个长度为奇数的数组中出现过：[4], [4, 2, 5], [1, 4, 2], [1, 4, 2, 5, 3]；所以最终和，要加上 4 * 4；
+2 在 5 个长度为奇数的数组中出现过：[2], [2, 5, 3], [4, 2, 5], [1, 4, 2], [1, 4, 2, 5, 3]；所以最终和，要加上 5 * 2；
+…
+
+下面的关键就是，如何计算一个数字在多少个奇数长度的数组中出现过？
+对于一个数字，它所在的数组，可以在它前面再选择 0, 1, 2, … 个数字，一共有 left = i + 1 个选择；（包括0）
+可以在它后面再选择 0, 1, 2, … 个数字，一共有 right = n - i 个选择。（包括0）
+如果在前面选择了偶数个数字，那么在后面，也必须选择偶数个数字，这样加上它自身，才构成奇数长度的数组；（偶数包括0）
+如果在前面选择了奇数个数字，那么在后面，也必须选择奇数个数字，这样加上它自身，才构成奇数长度的数组；
+数字前面共有 left 个选择，其中偶数个数字的选择方案有 left_even = (left + 1) / 2 个，奇数个数字的选择方案有 left_odd = left / 2 个；
+数字后面共有 right 个选择，其中偶数个数字的选择方案有 right_even = (right + 1) / 2 个，奇数个数字的选择方案有 right_odd = right / 2 个；
+将两边可以选择的方案两两组合（（left * right ）相乘），得到该数字在奇数子数组出现的次数
+所以，每个数字一共在 left_even * right_even + left_odd * right_odd 个奇数长度的数组中出现过。
+如第1个值（索引为0），left = i+1 = 1，左边共有1种选择(可以选择0个（偶数）)；right = n - i = 5 - 0 = 5，右边共有5种选择（可以选择0个或1个或2个或3个或4个）（3个偶数，2个奇数）
+所以：如果在前面有left = 1个选择，其中偶数个数的选择有left_even = （left + 1）/ 2 = （1+1）/ 2  = 1种（偶数包括0），奇数个数的选择有left_odd = left / 2 = 1/2 = 0种
+     如果在前面有right = 1个选择，其中偶数个数的选择有right_even = (right + 1) / 2 = （5+1）/ 2 = 3种（0，2，4），奇数个数的选择有right_odd = right / 2 = 5/2 = 2种（1，3），
+将两边可以选择的方案两两组合（（left * right ）相乘），left_even * right_even = 1*3 =3，left_odd * right_odd =0*2 = 0，所以1总共出现3次。
+*/
+
+class Solution {
+    public int sumOddLengthSubarrays(int[] arr) {
+        //数组长度，奇数子数组的和
+        int n = arr.length,sum = 0;
+        //遍历数组
+        for(int i = 0;i < n;i++){
+            //左右可选择的个数
+            int left = i+1,right = n-i;
+            //左边可以选择的偶数个数，奇数个数
+            int left_even = (left + 1)/2,left_odd = left/2;
+            //右边可以选择的偶数个数，奇数个数
+            int right_even = (right + 1)/2,right_odd = right/2;
+            sum += arr[i] * (left_even * right_even + left_odd*right_odd);
+        }
+        return sum;
+    }
+}
