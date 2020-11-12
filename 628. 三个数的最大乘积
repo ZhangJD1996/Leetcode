@@ -1,0 +1,82 @@
+/*
+Given an integer array nums, find three numbers whose product is maximum and return the maximum product.
+
+给定一个整型数组，在数组中找出由三个数组成的最大乘积，并输出这个乘积。
+
+示例 1:
+
+输入: [1,2,3]
+输出: 6
+示例 2:
+
+输入: [1,2,3,4]
+输出: 24
+注意:
+
+给定的整型数组长度范围是[3,10^4]，数组中所有的元素范围是[-1000, 1000]。
+输入的数组中任意三个数的乘积不会超出32位有符号整数的范围。
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/maximum-product-of-three-numbers
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+*/
+/*
+方法一：排序
+首先用sort对数组进行升序排序，如[-11,0,-2,3,9,1,10]排序之后为[-11,-2,0,1,3,9,10]
+那么如果数组中存在负数，则最大的情况为以下两种中最大的：
+    1.最大乘积为最小的两个负数和最大的正数相乘，即为前两个元素与最后一个元素的乘积
+      nums[0] * nums[1] * nums[nums.length - 1]。
+    2.最后三个数的乘积
+      nums[nums.length - 1] * nums[nums.length - 2]  * nums[nums.length - 3]
+如[-11,-2,0,1,3,9,10]，-11*-2*10 = 220，3*9*10 = 270，即第二情况大
+不管数组中包含了正数负数还是0，以上两种情况都包含了其中的最大乘积
+[-2,-1,0,0,0,1] 为第一种
+*/
+class Solution {
+    public int maximumProduct(int[] nums) {
+        //升序排序
+        Arrays.sort(nums);
+        //得到 前两个元素与最后一个元素的乘积  和  最后三个数的乘积 中的最大值
+        return Math.max(nums[0] * nums[1] * nums[nums.length - 1], nums[nums.length - 1] * nums[nums.length - 2]  * nums[nums.length - 3]);
+    }
+}
+
+/*
+方法二：在方法一中，实际上只要求出数组中最大的三个数以及最小的两个数，因此可以不用排序，直接找到这五个数即可。
+*/
+class Solution {
+    public int maximumProduct(int[] nums) {
+        // min1为最小值，min2为第二最小值
+        int min1 = 1000,min2 = 1000;
+        //max1为最大值，max2为第二最大值，max1为第三最大值
+        int max1 = -1000,max2 = -1000,max3 = -1000;
+        //遍历nums
+        for(int n : nums){
+            //改变最小值,将最小值赋值给第二最小值,如果该值小于最小值
+            if(n < min1){
+                min2 = min1;
+                min1 = n;
+            }
+            //如果该值不小于最小值，但是小于第二最小值，则将该值赋值给第二最小值
+            else if(n < min2){
+                min2 = n;
+            }
+            //改变最大值
+            //如果该值大于最大值,将第二最大值赋值给第三最大值，将最大值赋值给第二最大值，将该值赋值给最大值
+            if(n > max1){
+                max3 = max2;
+                max2 = max1;
+                max1 = n;
+            }
+            //如果该值小于最大值但是大于第二最大值，将第二最大值赋值给第三最大值，将该值赋值给第二最大值
+            else if(n > max2){
+                max3 = max2;
+                max2 = n;
+            }
+            //如果该值小于最大值也小于第二最大但是大于第三 最大值，则将该值赋值给第三最大值
+            else if(n > max3){
+                max3 = n;
+            }
+        }
+        return Math.max(min2*min1*max1, max1*max2*max3);
+    }
+}
